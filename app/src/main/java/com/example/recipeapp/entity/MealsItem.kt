@@ -45,5 +45,5 @@ data class MealsItem(
     @SerializedName("strMeasure9") val strMeasure9: String? = "",
     @SerializedName("strMeasure10") val strMeasure10: String? = "",
 
-    var categoryName: String = ""
+    var categoryName:String = ""
 )
