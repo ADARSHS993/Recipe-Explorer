@@ -2,6 +2,7 @@ package com.example.recipeapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,12 +18,15 @@ class HomeActivity : BaseActivity() {
     private lateinit var mainCategoryRecyclerView: RecyclerView
     private lateinit var subCategoryRecyclerView: RecyclerView
     private lateinit var tvCategory: TextView
+    private lateinit var searchbox : SearchView
 
     var arrMainCategory = ArrayList<CategoryItems>()
     var arrSubCategory = ArrayList<MealsItem>()
 
     var mainCategoryAdapter = MainCategoryAdapter()
     var subCategoryAdapter = SubCategoryAdapter()
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +35,22 @@ class HomeActivity : BaseActivity() {
         mainCategoryRecyclerView = findViewById(R.id.mainRecyclerview)
         subCategoryRecyclerView = findViewById(R.id.subRecyclerview)
         tvCategory = findViewById(R.id.tvcategory)
+        searchbox = findViewById(R.id.SearchBox)
+
+        searchbox.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                filterMeals(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                filterMeals(newText)
+                return true
+            }
+        })
+        searchbox.isIconified = false
+        searchbox.queryHint = "Search meals..."
 
         mainCategoryRecyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -45,6 +65,26 @@ class HomeActivity : BaseActivity() {
         subCategoryAdapter.setClickListner(onClickedSubItem)
 
         getCategoryDataFromDb()
+    }
+    //filter meals based on search query
+    private fun filterMeals(query: String?) {
+
+        val searchText = query?.trim() ?: ""
+
+        if (searchText.isEmpty()) {
+            subCategoryAdapter.setdata(arrSubCategory)
+            return
+        }
+
+        launch {
+
+            val result = RecipeDatabase
+                .getDatabse(this@HomeActivity)
+                .recipeDao()
+                .searchMeals(searchText)
+
+            subCategoryAdapter.setdata(ArrayList(result))
+        }
     }
 
     // ------------------- CATEGORY CLICK -------------------

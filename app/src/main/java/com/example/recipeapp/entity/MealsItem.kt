@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-@Entity(tableName = "MealItems")
+@Entity(tableName = "meals")
 data class MealsItem(
 
     @PrimaryKey(autoGenerate = false)

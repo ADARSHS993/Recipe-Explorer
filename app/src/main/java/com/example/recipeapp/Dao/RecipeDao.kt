@@ -22,6 +22,9 @@ interface RecipeDao {
     @Query("DELETE FROM categoryitems")
     suspend fun clearDb()
 
-    @Query("SELECT * FROM MealItems WHERE categoryName = :categoryName ORDER BY idMeal DESC")
-    suspend fun getSpecificMEalList(categoryName : String): List<MealsItem>   // ✅ FIXED
+    @Query("SELECT * FROM meals WHERE categoryName = :categoryName ORDER BY idMeal DESC")
+    suspend fun getSpecificMEalList(categoryName: String): List<MealsItem>
+
+    @Query("SELECT * FROM meals WHERE strMeal LIKE '%' || :searchQuery || '%'")
+    suspend fun searchMeals(searchQuery: String): List<MealsItem>
 }
