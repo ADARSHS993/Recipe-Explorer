@@ -25,6 +25,9 @@ interface RecipeDao {
     @Query("SELECT * FROM meals WHERE categoryName = :categoryName ORDER BY idMeal DESC")
     suspend fun getSpecificMEalList(categoryName: String): List<MealsItem>
 
-    @Query("SELECT * FROM meals WHERE strMeal LIKE '%' || :searchQuery || '%'")
-    suspend fun searchMeals(searchQuery: String): List<MealsItem>
+    @Query("SELECT * FROM meals WHERE strMeal LIKE :query")
+    suspend fun searchMeals(query: String): List<MealsItem>
+
+    @Query("SELECT strMeal FROM meals")
+    suspend fun getAllMealNames(): List<String>
 }

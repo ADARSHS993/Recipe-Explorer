@@ -2,6 +2,8 @@ package com.example.recipeapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +20,7 @@ class HomeActivity : BaseActivity() {
     private lateinit var mainCategoryRecyclerView: RecyclerView
     private lateinit var subCategoryRecyclerView: RecyclerView
     private lateinit var tvCategory: TextView
-    private lateinit var searchbox : SearchView
+    private lateinit var searchMeal: AutoCompleteTextView
 
     var arrMainCategory = ArrayList<CategoryItems>()
     var arrSubCategory = ArrayList<MealsItem>()
@@ -35,22 +37,9 @@ class HomeActivity : BaseActivity() {
         mainCategoryRecyclerView = findViewById(R.id.mainRecyclerview)
         subCategoryRecyclerView = findViewById(R.id.subRecyclerview)
         tvCategory = findViewById(R.id.tvcategory)
-        searchbox = findViewById(R.id.SearchBox)
+        searchMeal = findViewById(R.id.searchMeal)
 
-        searchbox.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                filterMeals(query)
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                filterMeals(newText)
-                return true
-            }
-        })
-        searchbox.isIconified = false
-        searchbox.queryHint = "Search meals..."
+        setupAutoComplete()
 
         mainCategoryRecyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -81,12 +70,37 @@ class HomeActivity : BaseActivity() {
             val result = RecipeDatabase
                 .getDatabse(this@HomeActivity)
                 .recipeDao()
-                .searchMeals(searchText)
+                .searchMeals("%$searchText%") // 🔥 important
 
             subCategoryAdapter.setdata(ArrayList(result))
         }
     }
 
+    private fun setupAutoComplete() {
+
+        launch {
+
+            val mealList = RecipeDatabase
+                .getDatabse(this@HomeActivity)
+                .recipeDao()
+                .getAllMealNames()  // ⚠️ you need to create this DAO method
+
+            val adapter = ArrayAdapter(
+                this@HomeActivity,
+                android.R.layout.simple_dropdown_item_1line,
+                mealList
+            )
+
+            searchMeal.setAdapter(adapter)
+            searchMeal.threshold = 1
+
+            // When user selects item
+            searchMeal.setOnItemClickListener { parent, _, position, _ ->
+                val selectedMeal = parent.getItemAtPosition(position).toString()
+                filterMeals(selectedMeal)
+            }
+        }
+    }
     // ------------------- CATEGORY CLICK -------------------
 
     private val onClicked = object : MainCategoryAdapter.OnItemClickListener {
@@ -144,5 +158,7 @@ class HomeActivity : BaseActivity() {
             subCategoryAdapter.setdata(arrSubCategory)
 
         }
+
+
     }
 }
